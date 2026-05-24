@@ -1,341 +1,639 @@
-export default function BambinoWebsite() {
+'use client'
+
+import React, { useEffect, useRef, useState } from 'react'
+import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
+
+const ease: [number, number, number, number] = [0.25, 0.1, 0.25, 1]
+
+function useInView(threshold = 0.15): [React.RefObject<HTMLDivElement | null>, boolean] {
+  const ref = useRef<HTMLDivElement>(null)
+  const [inView, setInView] = useState(false)
+  useEffect(() => {
+    if (!ref.current) return
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true) },
+      { threshold }
+    )
+    obs.observe(ref.current)
+    return () => obs.disconnect()
+  }, [])
+  return [ref, inView]
+}
+
+interface FadeUpProps { children: React.ReactNode; delay?: number; className?: string }
+function FadeUp({ children, delay = 0, className = '' }: FadeUpProps) {
+  const [ref, inView] = useInView()
   return (
-    <div className="bg-[#F2B705] min-h-screen text-white overflow-x-hidden">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 w-full z-50 bg-[#F2B705]/90 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.jpeg"
-              alt="Bambino Logo"
-              className="w-12 h-12 rounded-full object-cover"
+    <motion.div ref={ref} initial={{ opacity: 0, y: 36 }} animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.85, delay, ease }} className={className}>
+      {children}
+    </motion.div>
+  )
+}
+
+const NAV_LINKS = ['About', 'Programs', 'Activities', 'Founders', 'FAQ']
+
+interface Activity { label: string; bullets: string[]; icon: string }
+interface Faq { q: string; a: string }
+
+const ACTIVITIES: Activity[] = [
+  { label: 'Music & Movement', icon: '♩', bullets: [
+    'Rhymes, dance & rhythm-based activities',
+    'Builds coordination & listening skills',
+    'Encourages creativity & self-expression',
+    'Boosts confidence & social interaction',
+  ]},
+  { label: 'Sensorial Play', icon: '✦', bullets: [
+    'Hands-on sensory exploration activities',
+    'Enhances curiosity & problem-solving',
+    'Supports fine motor & cognitive development',
+    'Encourages focus & emotional regulation',
+  ]},
+  { label: 'Art Exploration', icon: '◈', bullets: [
+    'Develops imagination & self-expression',
+    'Improves fine motor & hand-eye coordination',
+    'Encourages confidence through creativity',
+  ]},
+  { label: 'Gross Motor Activities', icon: '◉', bullets: [
+    'Movement-based play & physical activities',
+    'Strengthens balance & body coordination',
+    'Builds physical confidence & fitness',
+    'Promotes active & joyful learning',
+  ]},
+  { label: 'Life Skill Activities', icon: '◇', bullets: [
+    'Everyday practical learning experiences',
+    'Encourages independence & responsibility',
+    'Develops concentration & problem-solving',
+    'Builds confidence in daily routines',
+  ]},
+  { label: 'Personal Social Emotional Development', icon: '◎', bullets: [
+    'Encourages communication & teamwork',
+    'Builds empathy & emotional awareness',
+    'Supports confidence & positive behaviour',
+    'Helps children form healthy relationships',
+  ]},
+]
+
+const FAQS: Faq[] = [
+  { q: 'What happens during a Bambino session?', a: "Each session blends music, movement, sensorial play, and intentional parent-child activities — curated to support your child's specific developmental stage. Every class has a theme, a warm-up ritual, and a reflective close." },
+  { q: 'Do parents attend every session?', a: "Yes — Bambino is a parent-toddler program by design. Your presence is not just welcome, it's essential. Sessions are crafted to deepen the bond between you and your child through shared experience." },
+  { q: 'What age groups do you cater to?', a: 'We offer two lovingly designed tracks: the Infant Program for 4–18 months, and the Toddler Program for 18–36 months. Each is calibrated to the developmental milestones of that window.' },
+  { q: 'How large are the batches?', a: 'We keep groups intentionally intimate — typically 6 to 8 parent-child pairs — so every family receives personalised attention and the environment remains calm and nurturing.' },
+]
+
+const C = {
+  bgCream:      '#FFFBEF',
+  bgPaleYellow: '#FFF5D0',
+  bgSoftYellow: '#FFE97A',
+  bgGold:       '#F6C43C',
+  bgDeepGold:   '#E8AE18',
+  cardA:        '#FFF8D6',
+  cardB:        '#FFF0A8',
+  textDark:     '#5C3D00',
+  textMid:      '#7A5200',
+  textMuted:    '#9C6E1A',
+  textLight:    '#B8892A',
+  accentGold:   '#C49A00',
+  accentDeep:   '#A07D00',
+  border:       'rgba(196,154,0,0.22)',
+  borderLight:  'rgba(196,154,0,0.13)',
+}
+
+export default function BambinoWebsite() {
+  const [scrolled, setScrolled] = useState(false)
+  const [openFaq, setOpenFaq]   = useState<number | null>(null)
+  const heroRef = useRef<HTMLElement>(null)
+
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
+  const heroY       = useTransform(scrollYProgress, [0, 1], ['0%', '18%'])
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.75], [1, 0])
+
+  useEffect(() => {
+    const fn = () => setScrolled(window.scrollY > 40)
+    window.addEventListener('scroll', fn, { passive: true })
+    return () => window.removeEventListener('scroll', fn)
+  }, [])
+
+  return (
+    <div style={{ fontFamily: '"Cormorant Garamond","Times New Roman",serif', background: C.bgCream, color: C.textDark, overflowX: 'hidden' }}>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+        ::selection { background: #F6C43C55; color: #5C3D00; }
+        a { text-decoration: none; color: inherit; }
+
+        .nav-link {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px; letter-spacing: 0.08em; font-weight: 400;
+          color: ${C.textMid}; position: relative; padding-bottom: 2px;
+          transition: color 0.3s ease;
+        }
+        .nav-link::after {
+          content: ''; position: absolute; bottom: 0; left: 0;
+          width: 0; height: 1px; background: ${C.accentGold};
+          transition: width 0.35s ease;
+        }
+        .nav-link:hover { color: ${C.accentGold}; }
+        .nav-link:hover::after { width: 100%; }
+
+        .pill {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 13px; letter-spacing: 0.1em; font-weight: 500;
+          padding: 10px 26px; border-radius: 100px; cursor: pointer;
+          transition: all 0.35s ease; display: inline-block;
+          border: 1.5px solid ${C.accentGold}; color: ${C.textDark}; background: transparent;
+        }
+        .pill:hover { background: ${C.accentGold}; color: #fff; transform: translateY(-1px); box-shadow: 0 8px 28px rgba(196,154,0,0.28); }
+        .pill-solid { background: ${C.accentGold}; color: #fff; border-color: ${C.accentGold}; }
+        .pill-solid:hover { background: ${C.accentDeep}; border-color: ${C.accentDeep}; color: #fff; }
+        .pill-amber { border-color: ${C.textMid}; color: ${C.textMid}; }
+        .pill-amber:hover { background: ${C.textMid}; color: #FFF5D0; box-shadow: 0 8px 28px rgba(122,82,0,0.2); }
+
+        .card-lift { transition: transform 0.45s cubic-bezier(.25,.1,.25,1), box-shadow 0.45s ease; }
+        .card-lift:hover { transform: translateY(-6px); box-shadow: 0 24px 56px rgba(196,154,0,0.16); }
+
+        .eyebrow {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 11px; letter-spacing: 0.22em; font-weight: 500;
+          text-transform: uppercase; color: ${C.accentGold};
+        }
+        .divider { width: 36px; height: 1.5px; background: ${C.accentGold}; }
+        .divider-center { margin: 18px auto 0; }
+        .divider-left   { margin: 18px 0 0; }
+
+        @media (max-width: 768px) {
+          .hide-mob { display: none !important; }
+          .hero-grid, .prog-grid, .founders-grid { grid-template-columns: 1fr !important; }
+          .hero-cta { justify-content: center !important; }
+          .act-grid { grid-template-columns: 1fr 1fr !important; }
+          .pillar-grid { grid-template-columns: 1fr !important; }
+        }
+        @media (max-width: 500px) {
+          .act-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+
+      {/* ── NAV ── */}
+      <motion.nav
+        initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, ease }}
+        style={{
+          position: 'fixed', top: 0, left: 0, width: '100%', zIndex: 100,
+          padding: scrolled ? '14px 0' : '22px 0',
+          background: scrolled ? 'rgba(255,251,239,0.9)' : 'transparent',
+          backdropFilter: scrolled ? 'blur(18px)' : 'none',
+          borderBottom: scrolled ? `1px solid ${C.borderLight}` : '1px solid transparent',
+          transition: 'all 0.45s ease',
+        }}
+      >
+        <div style={{ maxWidth: 1140, margin: '0 auto', padding: '0 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <img src="/logo.jpeg" alt="Bambino"
+              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${C.border}`, transition: 'transform 0.4s ease' }}
+              onMouseEnter={e => (e.currentTarget.style.transform = 'rotate(8deg)')}
+              onMouseLeave={e => (e.currentTarget.style.transform = 'rotate(0deg)')}
             />
             <div>
-              <h1 className="text-2xl font-serif font-semibold tracking-wide">
-                Bambino
-              </h1>
-              <p className="text-sm text-[#FFE9C2]">beginnings that bloom</p>
+              <div style={{ fontSize: 20, fontWeight: 400, letterSpacing: '0.05em', color: C.textDark, lineHeight: 1.1 }}>Bambino</div>
+              <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, letterSpacing: '0.18em', color: C.accentGold, textTransform: 'uppercase' }}>beginnings that bloom</div>
             </div>
           </div>
-
-          <div className="hidden md:flex gap-8 text-lg items-center">
-            <a href="#about" className="hover:text-[#FFE9C2] transition">
-              About
-            </a>
-            <a href="#programs" className="hover:text-[#FFE9C2] transition">
-              Programs
-            </a>
-            <a href="#activities" className="hover:text-[#FFE9C2] transition">
-              Activities
-            </a>
-            <a href="#faq" className="hover:text-[#FFE9C2] transition">
-              FAQ
-            </a>
-            <a
-              href="https://wa.me/919513900770"
-              target="_blank"
-              className="bg-white text-[#F2B705] px-5 py-2 rounded-full font-medium hover:scale-105 transition"
-            >
-              Talk To Us
-            </a>
+          <div className="hide-mob" style={{ display: 'flex', alignItems: 'center', gap: 36 }}>
+            {NAV_LINKS.map(l => <a key={l} href={`#${l.toLowerCase()}`} className="nav-link">{l}</a>)}
+            <a href="https://wa.me/919008766499" target="_blank" className="pill" style={{ marginLeft: 8 }}>Talk to us</a>
           </div>
         </div>
-      </nav>
+      </motion.nav>
 
-      {/* Hero */}
-      <section className="relative min-h-screen flex items-center justify-center px-6 pt-28 pb-16">
-        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top,_white,_transparent_60%)]"></div>
+      {/* ── HERO ── */}
+      <section ref={heroRef} style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden',
+        background: `linear-gradient(150deg, ${C.bgCream} 0%, ${C.bgPaleYellow} 45%, ${C.bgSoftYellow} 100%)` }}>
+        <svg style={{ position: 'absolute', top: 0, right: 0, width: '55%', height: '100%', pointerEvents: 'none' }}
+          viewBox="0 0 600 800" fill="none" preserveAspectRatio="xMaxYMid slice">
+          <circle cx="480" cy="220" r="360" stroke={C.accentGold} strokeWidth="0.7" strokeOpacity="0.35" fill="none" />
+          <circle cx="480" cy="220" r="240" stroke={C.accentGold} strokeWidth="0.5" strokeOpacity="0.25" fill="none" />
+          <circle cx="480" cy="220" r="120" stroke={C.accentGold} strokeWidth="0.5" strokeOpacity="0.18" fill="none" />
+          <circle cx="480" cy="220" r="430" stroke={C.accentGold} strokeWidth="0.4" strokeOpacity="0.12" fill="none" />
+        </svg>
 
-        <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-14 items-center relative z-10">
-          <div>
-            <p className="uppercase tracking-[0.3em] text-[#FFE9C2] mb-4 text-sm">
-              Premium Parent Toddler Program
-            </p>
+        <motion.div style={{ y: heroY, opacity: heroOpacity, width: '100%' }}>
+          <div className="hero-grid" style={{ maxWidth: 1140, margin: '0 auto', padding: '120px 32px 80px',
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
+            <div>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.1, ease }}>
+                <span className="eyebrow">Early Learning Solutions</span>
+              </motion.div>
 
-            <h1 className="text-5xl md:text-7xl font-serif leading-tight drop-shadow-xl">
-              Helping Little Hearts Grow... One Moment at a Time
-            </h1>
+              <motion.h1 initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.25, ease }}
+                style={{ fontSize: 'clamp(42px,5.2vw,70px)', fontWeight: 300, lineHeight: 1.1,
+                  letterSpacing: '-0.01em', color: C.textDark, marginTop: 20, marginBottom: 28 }}>
+                Helping Little<br />
+                <em style={{ fontStyle: 'italic', color: C.accentGold, fontWeight: 300 }}>Hearts Grow</em><br />
+                One Moment at a Time
+              </motion.h1>
 
-            <p className="mt-8 text-xl text-[#FFF1D6] leading-relaxed max-w-xl">
-              Curated developmental experiences for infants and toddlers that
-              nurture bonding, creativity, confidence, and holistic growth
-              through meaningful parent-child interaction.
-            </p>
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.45, ease }}
+                style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 16, lineHeight: 1.85,
+                  color: C.textMid, maxWidth: 440, fontWeight: 300, marginBottom: 40 }}>
+                Curated developmental experiences for infants and toddlers that nurture
+                bonding, creativity, and holistic growth through meaningful parent-child interaction.
+              </motion.p>
 
-            <div className="mt-10 flex flex-wrap gap-5">
-              <a
-                href="https://wa.me/919513900770"
-                target="_blank"
-                className="bg-white text-[#F2B705] px-8 py-4 rounded-full text-lg font-semibold hover:scale-105 transition"
-              >
-                Talk To Us
-              </a>
+              <motion.div className="hero-cta" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.6, ease }}
+                style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+                <a href="https://wa.me/919008766499" target="_blank" className="pill pill-solid" style={{ fontSize: 14, padding: '12px 30px' }}>Talk to us</a>
+                <a href="#programs" className="pill pill-amber" style={{ fontSize: 14, padding: '12px 30px' }}>Explore programs</a>
+              </motion.div>
 
-              <a
-                href="#programs"
-                className="border border-white px-8 py-4 rounded-full text-lg hover:bg-white hover:text-[#F2B705] transition"
-              >
-                Explore Programs
-              </a>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                transition={{ duration: 0.8, delay: 0.85, ease }}
+                style={{ display: 'flex', gap: 32, marginTop: 52 }}>
+                {[['4–36', 'Months'], ['EYFS', 'Framework'], ['Reggio', 'Approach']].map(([main, sub]) => (
+                  <div key={main}>
+                    <div style={{ fontSize: 22, fontWeight: 400, color: C.textDark, letterSpacing: '-0.01em' }}>{main}</div>
+                    <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: C.textMuted, marginTop: 3 }}>{sub}</div>
+                  </div>
+                ))}
+              </motion.div>
             </div>
-          </div>
 
-          <div className="flex justify-center">
-            <img
-              src="/logo.jpeg"
-              alt="Bambino Hero"
-              className="w-[500px] max-w-full drop-shadow-2xl rounded-[40px]"
-            />
+            <motion.div initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.1, delay: 0.35, ease }}
+              style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
+              <div style={{ position: 'absolute', inset: -24, borderRadius: '50%',
+                background: `radial-gradient(circle, rgba(246,196,60,0.22) 0%, transparent 70%)`, filter: 'blur(4px)' }} />
+              <img src="/logo.jpeg" alt="Bambino"
+                style={{ width: '100%', maxWidth: 480, borderRadius: 32, objectFit: 'cover', position: 'relative',
+                  border: `1px solid rgba(196,154,0,0.2)`,
+                  boxShadow: '0 32px 90px rgba(196,154,0,0.18), 0 0 0 1px rgba(246,196,60,0.1)' }} />
+            </motion.div>
           </div>
-        </div>
+        </motion.div>
+
+        <div style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 110,
+          background: `linear-gradient(to bottom, transparent, ${C.bgCream})`, pointerEvents: 'none' }} />
       </section>
 
-      {/* About */}
-      <section id="about" className="py-24 px-6 bg-[#F7C83B] text-white">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="uppercase tracking-[0.25em] text-[#FFF1D6] mb-4 text-sm">
-            About Bambino
-          </p>
-
-          <h2 className="text-4xl md:text-6xl font-serif mb-8">
-            Where Bonds Begin
-          </h2>
-
-          <p className="text-xl leading-relaxed max-w-4xl mx-auto text-[#FFF4E1]">
-            Bambino is a thoughtfully curated early childhood development
-            studio focused on helping young children thrive during their most
-            important formative years. Using the EYFS framework, Reggio Emilia
-            approach, and Multiple Intelligence philosophy, our sessions are
-            designed to nurture emotional connection, sensory exploration,
-            creativity, social interaction, and joyful learning.
-          </p>
-        </div>
-      </section>
-
-      {/* Programs */}
-      <section id="programs" className="py-24 px-6 bg-[#F2B705]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="uppercase tracking-[0.25em] text-[#FFE9C2] mb-4 text-sm">
-              Our Programs
-            </p>
-            <h2 className="text-4xl md:text-6xl font-serif">
-              Designed for the Earliest Years
+      {/* ── ABOUT ── */}
+      <section id="about" style={{ padding: '120px 32px', background: C.bgCream }}>
+        <div style={{ maxWidth: 840, margin: '0 auto', textAlign: 'center' }}>
+          <FadeUp>
+            <span className="eyebrow">About Bambino</span>
+            <div className="divider divider-center" />
+            <h2 style={{ fontSize: 'clamp(34px,4.2vw,56px)', fontWeight: 300, lineHeight: 1.15, marginTop: 28, marginBottom: 26, color: C.textDark }}>
+              Where Bonds Begin
             </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="bg-white/10 backdrop-blur-md rounded-[40px] p-10 border border-white/10 shadow-2xl">
-              <p className="text-[#FFE9C2] uppercase tracking-[0.2em] text-sm mb-4">
-                Infant Program
-              </p>
-              <h3 className="text-4xl font-serif mb-6">4–18 Months</h3>
-
-              <p className="text-lg leading-relaxed text-[#FFF4E1] mb-8">
-                Gentle sensory-rich sessions designed to strengthen parent-child
-                bonding while supporting emotional, cognitive, and motor
-                development during the earliest months.
-              </p>
-
-              <ul className="space-y-3 text-[#FFF4E1] text-lg">
-                <li>• Music & Movement</li>
-                <li>• Sensorial Play</li>
-                <li>• Gross Motor Activities</li>
-                <li>• Emotional Development</li>
-                <li>• Guided Parent Interaction</li>
-              </ul>
+          </FadeUp>
+          <FadeUp delay={0.15}>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, lineHeight: 1.9, color: C.textMid, fontWeight: 300, marginBottom: 56 }}>
+              Bambino is a thoughtfully curated early childhood development studio focused on helping young children thrive
+              during their most important formative years. Using the <em>EYFS framework</em>, <em>Reggio Emilia approach</em>,
+              and <em>Multiple Intelligence philosophy</em>, our sessions nurture emotional connection, sensory exploration,
+              creativity, social interaction, and joyful learning.
+            </p>
+          </FadeUp>
+          <FadeUp delay={0.25}>
+            <div className="pillar-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+              {[
+                { t1: 'EYFS',     t2: 'Framework',    desc: 'Evidence-based early years curriculum for holistic child development.' },
+                { t1: 'Reggio',   t2: 'Emilia',        desc: 'Child-led exploration with the environment as the third teacher.' },
+                { t1: 'Multiple', t2: 'Intelligences', desc: "Honouring each child's unique learning style and strengths." },
+              ].map(({ t1, t2, desc }) => (
+                <div key={t1} className="card-lift" style={{ background: C.cardA, border: `1px solid ${C.border}`, borderRadius: 22, padding: '36px 24px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 26, fontWeight: 300, color: C.accentGold, lineHeight: 1 }}>{t1}</div>
+                  <div style={{ fontSize: 22, fontWeight: 300, color: C.accentGold, marginBottom: 14 }}>{t2}</div>
+                  <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, lineHeight: 1.75, color: C.textMuted }}>{desc}</div>
+                </div>
+              ))}
             </div>
-
-            <div className="bg-white/10 backdrop-blur-md rounded-[40px] p-10 border border-white/10 shadow-2xl">
-              <p className="text-[#FFE9C2] uppercase tracking-[0.2em] text-sm mb-4">
-                Toddler Program
-              </p>
-              <h3 className="text-4xl font-serif mb-6">18–36 Months</h3>
-
-              <p className="text-lg leading-relaxed text-[#FFF4E1] mb-8">
-                Interactive sessions that encourage creativity, independence,
-                communication, socialisation, and joyful exploration through
-                meaningful experiences.
-              </p>
-
-              <ul className="space-y-3 text-[#FFF4E1] text-lg">
-                <li>• Art Exploration</li>
-                <li>• Circle Time</li>
-                <li>• Life Skill Activities</li>
-                <li>• Social Interaction</li>
-                <li>• Parent-Child Bonding</li>
-              </ul>
-            </div>
-          </div>
+          </FadeUp>
         </div>
       </section>
 
-      {/* Activities */}
-      <section id="activities" className="py-24 px-6 bg-[#F7C83B]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="uppercase tracking-[0.25em] text-[#FFF4E1] mb-4 text-sm">
-              Activities
-            </p>
-            <h2 className="text-4xl md:text-6xl font-serif">
-              Meaningful Experiences for Growing Minds
-            </h2>
-          </div>
+      {/* ── PROGRAMS ── */}
+      <section id="programs" style={{ padding: '120px 32px', background: C.bgPaleYellow }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <FadeUp>
+            <div style={{ textAlign: 'center', marginBottom: 68 }}>
+              <span className="eyebrow">Our Programs</span>
+              <div className="divider divider-center" />
+              <h2 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 300, lineHeight: 1.15, marginTop: 28, color: C.textDark }}>
+                Designed for the Earliest Years
+              </h2>
+            </div>
+          </FadeUp>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="prog-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 22 }}>
             {[
-              'Music & Movement',
-              'Sensorial Play',
-              'Art Exploration',
-              'Gross Motor Activities',
-              'Life Skill Activities',
-              'Personal Social Emotional Development',
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="bg-white text-[#7B5B00] rounded-[32px] p-8 shadow-xl hover:-translate-y-2 transition duration-300"
-              >
-                <div className="w-14 h-14 rounded-full bg-[#F2B705] mb-6"></div>
-                <h3 className="text-2xl font-serif leading-snug">{item}</h3>
-              </div>
+              {
+                label: 'Infant Program', age: '4–18 Months',
+                desc: 'Gentle sensory-rich sessions designed to strengthen parent-child bonding while supporting emotional, cognitive, and motor development during the earliest months.',
+                items: ['Music & Movement', 'Sensorial Play', 'Gross Motor Activities', 'Emotional Development', 'Guided Parent Interaction', 'Early Communication Skills', 'Sensory Exploration', 'Bonding & Attachment Activities'],
+                bg: C.bgGold, textCol: C.textDark, mutedCol: 'rgba(92,61,0,0.65)', borderCol: 'rgba(92,61,0,0.1)',
+              },
+              {
+                label: 'Toddler Program', age: '18–36 Months',
+                desc: 'Interactive sessions that encourage creativity, independence, communication, socialisation, and joyful exploration through meaningful experiences.',
+                items: ['Art Exploration', 'Circle Time', 'Life Skill Activities', 'Social Interaction', 'Parent-Child Bonding', 'Language & Communication Skills', 'Fine & Gross Motor Development'],
+                bg: C.cardA, textCol: C.textDark, mutedCol: C.textMuted, borderCol: C.borderLight,
+              },
+            ].map((prog, i) => (
+              <FadeUp key={prog.label} delay={i * 0.14}>
+                <div className="card-lift" style={{
+                  background: prog.bg, border: `1px solid ${prog.borderCol}`,
+                  borderRadius: 28, padding: '52px 44px', height: '100%',
+                  boxShadow: i === 0 ? '0 16px 60px rgba(196,154,0,0.2)' : 'none',
+                }}>
+                  <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, letterSpacing: '0.2em',
+                    textTransform: 'uppercase', color: i === 0 ? C.textDark : C.accentGold, opacity: 0.7, marginBottom: 16, fontWeight: 500 }}>
+                    {prog.label}
+                  </div>
+                  <div style={{ fontSize: 52, fontWeight: 300, lineHeight: 1, marginBottom: 22, letterSpacing: '-0.02em', color: prog.textCol }}>{prog.age}</div>
+                  <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, lineHeight: 1.8, color: prog.mutedCol, marginBottom: 34, fontWeight: 300 }}>{prog.desc}</p>
+                  <div style={{ borderTop: `1px solid ${prog.borderCol}`, paddingTop: 26 }}>
+                    {prog.items.map(item => (
+                      <div key={item} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0',
+                        borderBottom: `1px solid ${prog.borderCol}`,
+                        fontFamily: "'DM Sans',sans-serif", fontSize: 14, color: prog.textCol }}>
+                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: C.accentGold, flexShrink: 0 }} />
+                        {item}
+                      </div>
+                    ))}
+                  </div>
+                  <a href="https://wa.me/919008766499" target="_blank" className="pill"
+                    style={{ marginTop: 36, borderColor: C.textDark, color: C.textDark, fontSize: 13 }}>
+                    Enquire now
+                  </a>
+                </div>
+              </FadeUp>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Philosophy */}
-      <section className="py-24 px-6 bg-[#F2B705]">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="uppercase tracking-[0.25em] text-[#FFE9C2] mb-4 text-sm">
-            Our Philosophy
-          </p>
-
-          <h2 className="text-4xl md:text-6xl font-serif mb-10">
-            The Magic of Togetherness
-          </h2>
-
-          <p className="text-xl leading-relaxed text-[#FFF4E1] max-w-4xl mx-auto">
-            Every Bambino session is designed as a shared experience between
-            parent and child — encouraging connection, communication, emotional
-            security, and joyful discovery. We believe the strongest learning
-            begins through relationships, interaction, and meaningful moments
-            together.
-          </p>
-        </div>
-      </section>
-
-      {/* Founders */}
-      <section className="py-24 px-6 bg-[#F7C83B]">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="uppercase tracking-[0.25em] text-[#FFF4E1] mb-4 text-sm">
-            Founders
-          </p>
-
-          <h2 className="text-4xl md:text-6xl font-serif mb-14">
-            Guided by Passion & Purpose
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-10">
-            <div className="bg-white/20 rounded-[36px] p-10 backdrop-blur-md shadow-xl">
-              <h3 className="text-3xl font-serif mb-3">Puja Gupta</h3>
-              <p className="text-[#FFF4E1] text-lg">
-                Early Childhood Educator
-              </p>
+      {/* ── ACTIVITIES ── */}
+      <section id="activities" style={{ padding: '120px 32px', background: C.bgCream }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <FadeUp>
+            <div style={{ marginBottom: 60 }}>
+              <span className="eyebrow">Activities</span>
+              <div className="divider divider-left" />
+              <h2 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 300, lineHeight: 1.15, maxWidth: 520, marginTop: 28, color: C.textDark }}>
+                Meaningful Experiences for Growing Minds
+              </h2>
             </div>
+          </FadeUp>
 
-            <div className="bg-white/20 rounded-[36px] p-10 backdrop-blur-md shadow-xl">
-              <h3 className="text-3xl font-serif mb-3">Sonica Sharma</h3>
-              <p className="text-[#FFF4E1] text-lg">
-                Parent Engagement Specialist
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ */}
-      <section id="faq" className="py-24 px-6 bg-[#F2B705]">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <p className="uppercase tracking-[0.25em] text-[#FFE9C2] mb-4 text-sm">
-              FAQ
-            </p>
-            <h2 className="text-4xl md:text-6xl font-serif">
-              Frequently Asked Questions
-            </h2>
-          </div>
-
-          <div className="space-y-6">
-            {[
-              'What happens during a Bambino session?',
-              'Do parents attend every session?',
-              'What age groups do you cater to?',
-              'How large are the batches?',
-            ].map((q, i) => (
-              <div
-                key={i}
-                className="bg-white/10 rounded-[28px] p-8 border border-white/10"
-              >
-                <h3 className="text-2xl font-medium">{q}</h3>
-                <p className="mt-4 text-[#FFF4E1] text-lg">
-                  Add your custom FAQ answer here.
-                </p>
-              </div>
+          <div className="act-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+            {ACTIVITIES.map((act, i) => (
+              <FadeUp key={act.label} delay={i * 0.07}>
+                <div className="card-lift" style={{
+                  background: i % 2 === 0 ? C.cardA : C.bgPaleYellow,
+                  border: `1px solid ${C.border}`, borderRadius: 22,
+                  padding: '34px 28px', height: '100%',
+                }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%',
+                    background: C.bgSoftYellow, border: `1px solid ${C.border}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 18, color: C.textDark, marginBottom: 18 }}>{act.icon}</div>
+                  <h3 style={{ fontSize: 19, fontWeight: 400, marginBottom: 14, lineHeight: 1.25, color: C.textDark }}>{act.label}</h3>
+                  <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 7 }}>
+                    {act.bullets.map(b => (
+                      <li key={b} style={{ display: 'flex', alignItems: 'flex-start', gap: 8,
+                        fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, lineHeight: 1.65, color: C.textMuted, fontWeight: 300 }}>
+                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: C.accentGold, flexShrink: 0, marginTop: 7 }} />
+                        {b}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </FadeUp>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Contact CTA */}
-      <section className="py-28 px-6 bg-[#F7C83B] text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-7xl font-serif leading-tight mb-8">
-            Let’s Bond and Create Memories
-          </h2>
-
-          <p className="text-xl text-[#FFF4E1] leading-relaxed mb-10">
-            Located in Bangalore. Curated for modern families seeking
-            meaningful developmental experiences during the earliest years.
-          </p>
-
-          <div className="flex flex-wrap justify-center gap-5 mb-10">
-            <a
-              href="https://wa.me/919513900770"
-              target="_blank"
-              className="bg-white text-[#F2B705] px-10 py-5 rounded-full text-xl font-semibold hover:scale-105 transition"
-            >
-              Talk To Us
-            </a>
-
-            <a
-              href="mailto:abhigyan1803@gmail.com"
-              className="border border-white px-10 py-5 rounded-full text-xl hover:bg-white hover:text-[#F2B705] transition"
-            >
-              Send Email
-            </a>
-          </div>
-
-          <p className="text-[#FFF4E1] text-lg">
-            Instagram: @bambino.placeholder
-          </p>
+      {/* ── PHILOSOPHY BANNER ── */}
+      <section style={{ padding: '110px 32px', background: `linear-gradient(135deg, ${C.bgGold} 0%, ${C.bgDeepGold} 100%)`,
+        position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
+        <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+          viewBox="0 0 1200 400" preserveAspectRatio="xMidYMid slice">
+          <circle cx="600" cy="200" r="500" stroke="#fff" strokeWidth="0.5" strokeOpacity="0.12" fill="none" />
+          <circle cx="600" cy="200" r="340" stroke="#fff" strokeWidth="0.5" strokeOpacity="0.09" fill="none" />
+          <circle cx="600" cy="200" r="180" stroke="#fff" strokeWidth="0.4" strokeOpacity="0.07" fill="none" />
+        </svg>
+        <div style={{ maxWidth: 760, margin: '0 auto', position: 'relative' }}>
+          <FadeUp>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 11, letterSpacing: '0.22em',
+              fontWeight: 500, textTransform: 'uppercase', color: 'rgba(92,61,0,0.6)' }}>Our Philosophy</span>
+            <h2 style={{ color: C.textDark, fontSize: 'clamp(36px,5vw,62px)', fontWeight: 300,
+              lineHeight: 1.1, marginTop: 20, marginBottom: 26, letterSpacing: '-0.01em' }}>
+              The Magic of<br /><em style={{ fontStyle: 'italic' }}>Togetherness</em>
+            </h2>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 17, lineHeight: 1.9,
+              color: 'rgba(92,61,0,0.72)', fontWeight: 300, maxWidth: 560, margin: '0 auto' }}>
+              Every Bambino session is designed as a shared experience between parent and child —
+              encouraging connection, communication, emotional security, and joyful discovery.
+            </p>
+          </FadeUp>
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-[#D89F00] py-10 px-6 text-center text-[#FFF4E1]">
-        <img
-          src="/logo.jpeg"
-          alt="Bambino"
-          className="w-20 h-20 rounded-full mx-auto mb-5"
-        />
+      {/* ── FOUNDERS ── */}
+      <section id="founders" style={{ padding: '120px 32px', background: C.bgPaleYellow }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+          <FadeUp>
+            <div style={{ textAlign: 'center', marginBottom: 72 }}>
+              <span className="eyebrow">The People Behind Bambino</span>
+              <div className="divider divider-center" />
+              <h2 style={{ fontSize: 'clamp(32px,4vw,52px)', fontWeight: 300, lineHeight: 1.15, marginTop: 28, color: C.textDark }}>
+                Meet Our Founders
+              </h2>
+            </div>
+          </FadeUp>
 
-        <h3 className="text-3xl font-serif mb-2">Bambino</h3>
-        <p className="mb-6">beginnings that bloom</p>
+          <div className="founders-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+            {[
+              {
+                name: 'Puja Gupta',
+                title: 'Academic Leader & Parent Engagement Specialist',
+                bio: 'With over 16 years of experience in early childhood education, Puja is passionate about creating nurturing, meaningful, and developmentally enriching experiences for young children and their families. Her warm and holistic approach focuses on helping children thrive emotionally, socially, and cognitively during their most formative years while empowering parents to become active participants in their child\'s learning journey.',
+                credentials: [
+                  '16+ Years in Early Childhood Education',
+                  'Former Regional Curriculum Manager',
+                  'Certified Preschool Educator — AIC Singapore',
+                  'Specialist in Toddler Development & Parent Counselling',
+                  'EYFS · Multiple Intelligence · Reggio Inspired Learning',
+                  'Workshop Leader in Child Behaviour, Phonics & Parent Engagement',
+                ],
+              },
+              {
+                name: 'Sonica Sharma',
+                title: 'Early Childhood Educator & Curriculum Specialist',
+                bio: 'With over 20 years of experience in early years education and academic leadership, Sonica believes in building joyful learning environments where children feel confident, curious, and emotionally secure. Her learner-centred philosophy combines structured developmental practices with creativity, exploration, and meaningful parent-child connection.',
+                credentials: [
+                  '20+ Years in Early Years Education & Leadership',
+                  'Former Regional Curriculum Manager & Academic Head',
+                  'Certified Preschool Educator — AIC Singapore',
+                  'Certified in Jolly Phonics (UK)',
+                  'Specialist in Reggio Emilia & Play-Based Learning',
+                  'Expertise in Curriculum Design, Teacher Training & Parent Engagement',
+                ],
+              },
+            ].map((founder, i) => (
+              <FadeUp key={founder.name} delay={i * 0.15}>
+                <div className="card-lift" style={{
+                  background: C.cardA, border: `1px solid ${C.border}`,
+                  borderRadius: 28, padding: '48px 42px', height: '100%',
+                }}>
+                  {/* Photo placeholder */}
+                  <div style={{
+                    width: '100%', aspectRatio: '4/3',
+                    borderRadius: 20,
+                    background: `linear-gradient(135deg, ${C.bgSoftYellow} 0%, ${C.bgGold} 100%)`,
+                    border: `1px solid ${C.border}`,
+                    marginBottom: 32,
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                    gap: 10,
+                  }}>
+                    <div style={{
+                      width: 72, height: 72, borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.55)',
+                      border: `1.5px solid rgba(196,154,0,0.3)`,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 28, color: C.textMid,
+                    }}>🌿</div>
+                    <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, letterSpacing: '0.12em',
+                      textTransform: 'uppercase', color: 'rgba(92,61,0,0.4)', fontWeight: 400 }}>
+                      Photo coming soon
+                    </div>
+                  </div>
 
-        <p>
-          © 2026 Bambino • Bangalore • Premium Parent Toddler Program
-        </p>
+                  {/* Name & title */}
+                  <div style={{ marginBottom: 20 }}>
+                    <h3 style={{ fontSize: 32, fontWeight: 400, color: C.textDark, lineHeight: 1.1, marginBottom: 6 }}>{founder.name}</h3>
+                    <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: C.accentGold,
+                      letterSpacing: '0.06em', fontWeight: 400 }}>{founder.title}</div>
+                  </div>
+
+                  {/* Bio */}
+                  <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14.5, lineHeight: 1.85,
+                    color: C.textMid, fontWeight: 300, marginBottom: 28 }}>{founder.bio}</p>
+
+                  {/* Credentials */}
+                  <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: 24, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {founder.credentials.map(cred => (
+                      <div key={cred} style={{ display: 'flex', alignItems: 'flex-start', gap: 10,
+                        fontFamily: "'DM Sans',sans-serif", fontSize: 13.5, color: C.textDark, lineHeight: 1.5 }}>
+                        <div style={{ width: 5, height: 5, borderRadius: '50%', background: C.accentGold, flexShrink: 0, marginTop: 6 }} />
+                        {cred}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FAQ ── */}
+      <section id="faq" style={{ padding: '120px 32px', background: C.bgCream }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <FadeUp>
+            <div style={{ textAlign: 'center', marginBottom: 60 }}>
+              <span className="eyebrow">FAQ</span>
+              <div className="divider divider-center" />
+              <h2 style={{ fontSize: 'clamp(30px,4vw,48px)', fontWeight: 300, lineHeight: 1.15, marginTop: 28, color: C.textDark }}>
+                Frequently Asked Questions
+              </h2>
+            </div>
+          </FadeUp>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {FAQS.map((faq, i) => (
+              <FadeUp key={i} delay={i * 0.07}>
+                <div style={{ border: `1px solid ${C.border}`, borderRadius: 18, background: C.cardA, overflow: 'hidden' }}>
+                  <button onClick={() => setOpenFaq(openFaq === i ? null : i)}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '24px 28px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', gap: 16 }}>
+                    <span style={{ fontFamily: '"Cormorant Garamond",serif', fontSize: 21, fontWeight: 400, color: C.textDark, lineHeight: 1.3 }}>
+                      {faq.q}
+                    </span>
+                    <motion.div animate={{ rotate: openFaq === i ? 45 : 0 }} transition={{ duration: 0.3, ease }}
+                      style={{ width: 28, height: 28, borderRadius: '50%', border: `1.5px solid ${C.border}`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 18, color: C.accentGold, flexShrink: 0, background: C.bgSoftYellow }}>+</motion.div>
+                  </button>
+                  <AnimatePresence initial={false}>
+                    {openFaq === i && (
+                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.4, ease }} style={{ overflow: 'hidden' }}>
+                        <div style={{ padding: '0 28px 28px', fontFamily: "'DM Sans',sans-serif",
+                          fontSize: 15, lineHeight: 1.82, color: C.textMid, fontWeight: 300 }}>
+                          {faq.a}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </FadeUp>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section style={{ padding: '120px 32px', background: C.bgPaleYellow, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 680, height: 680, borderRadius: '50%', border: `1px solid ${C.borderLight}`, pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+          width: 480, height: 480, borderRadius: '50%', border: `1px solid ${C.borderLight}`, pointerEvents: 'none' }} />
+        <div style={{ maxWidth: 680, margin: '0 auto', position: 'relative' }}>
+          <FadeUp>
+            <span className="eyebrow">Get in Touch</span>
+            <h2 style={{ fontSize: 'clamp(36px,5vw,64px)', fontWeight: 300, lineHeight: 1.1,
+              letterSpacing: '-0.01em', marginTop: 20, marginBottom: 22, color: C.textDark }}>
+              Let's Bond and<br />
+              <em style={{ color: C.accentGold, fontStyle: 'italic' }}>Create Memories</em>
+            </h2>
+            <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 16, lineHeight: 1.85,
+              color: C.textMid, fontWeight: 300, marginBottom: 44 }}>
+              Located in Bangalore. Curated for modern families seeking meaningful developmental experiences during the earliest years.
+            </p>
+            <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 36 }}>
+              <a href="https://wa.me/919008766499" target="_blank" className="pill pill-solid" style={{ fontSize: 15, padding: '14px 34px' }}>
+                Talk to us on WhatsApp
+              </a>
+              <a href="mailto:abhigyan1803@gmail.com" className="pill pill-amber" style={{ fontSize: 15, padding: '14px 34px' }}>
+                Send an email
+              </a>
+            </div>
+            <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, letterSpacing: '0.1em', color: C.textMuted }}>
+              Instagram: @bambino.placeholder
+            </div>
+          </FadeUp>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer style={{ padding: '56px 32px', background: C.bgGold, textAlign: 'center', borderTop: `1px solid rgba(196,154,0,0.2)` }}>
+        <img src="/logo.jpeg" alt="Bambino"
+          style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover',
+            border: `1.5px solid rgba(92,61,0,0.2)`, marginBottom: 16 }} />
+        <div style={{ fontSize: 26, fontWeight: 300, color: C.textDark, marginBottom: 4 }}>Bambino</div>
+        <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 10, letterSpacing: '0.2em',
+          textTransform: 'uppercase', color: C.textMid, marginBottom: 26 }}>beginnings that bloom</div>
+        <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: 'rgba(92,61,0,0.45)', letterSpacing: '0.05em' }}>
+          © 2026 Bambino · Bangalore · Premium Parent Toddler Program
+        </div>
       </footer>
+
     </div>
   )
 }
