@@ -75,10 +75,66 @@ const ACTIVITIES: Activity[] = [
 ]
 
 const FAQS: Faq[] = [
-  { q: 'What happens during a Bambino session?', a: "Each session blends music, movement, sensorial play, and intentional parent-child activities — curated to support your child's specific developmental stage. Every class has a theme, a warm-up ritual, and a reflective close." },
-  { q: 'Do parents attend every session?', a: "Yes — Bambino is a parent-toddler program by design. Your presence is not just welcome, it's essential. Sessions are crafted to deepen the bond between you and your child through shared experience." },
-  { q: 'What age groups do you cater to?', a: 'We offer two lovingly designed tracks: the Infant Program for 4–18 months, and the Toddler Program for 18–36 months. Each is calibrated to the developmental milestones of that window.' },
-  { q: 'How large are the batches?', a: 'We keep groups intentionally intimate — typically 6 to 8 parent-child pairs — so every family receives personalised attention and the environment remains calm and nurturing.' },
+  {
+    q: 'What happens during a Bambino session?',
+    a: 'Each Bambino session is interactive, engaging, and development-focused for both children and parents. Sessions typically include rhymes, music and movement, sensory play, storytelling, hands-on activities, social interaction, and guided learning experiences that support early childhood development. Our facilitators create a warm and nurturing environment where children learn through play while building confidence, communication, creativity, and motor skills.'
+  },
+  {
+    q: 'Do parents attend every session?',
+    a: 'Yes, parents or caregivers are encouraged to attend every session, especially for our parent-toddler programs. These sessions are designed to strengthen parent-child bonding while helping parents better understand their child’s developmental milestones and learning needs.'
+  },
+  {
+    q: 'What age groups do you cater to?',
+    a: 'We cater to children from 4 months to 3 years through carefully designed age-appropriate programs and activities. We also conduct parent education sessions and teacher training programs focused on early childhood development.'
+  },
+  {
+    q: 'How large are the batches?',
+    a: 'We maintain small batch sizes of approximately 10–15 children to ensure personalised attention, meaningful interaction, and a comfortable learning environment for every child and parent.'
+  },
+  {
+    q: 'What kind of skills does my child develop through the Parent-Toddler Program?',
+    a: 'Children gradually develop language and communication skills, social interaction, listening and attention, fine and gross motor abilities, sensory exploration, creativity, confidence, emotional expression, curiosity, independence, and stronger parent-child bonding through play-based learning experiences.'
+  },
+  {
+    q: 'What are the qualifications of your staff?',
+    a: 'Our team consists of well-trained graduates with strong knowledge of early childhood development and learning. They are selected for their passion for working with young children and regularly undergo professional training to ensure a safe, nurturing, and engaging environment for every family.'
+  },
+  {
+    q: 'What kind of materials and teaching aids do you use?',
+    a: 'We use age-appropriate and child-safe materials including rhymes, flashcards, storybooks, sensory play materials, music and movement props, art and craft supplies, puppets, educational toys, and hands-on activity kits. All resources are thoughtfully chosen to support creativity, communication, motor development, and joyful learning through play.'
+  },
+  {
+    q: 'What is the age limit for these sessions?',
+    a: 'Our programs are specially designed for infants and toddlers between 4 months and 3 years of age, with activities tailored to each developmental stage.'
+  },
+  {
+    q: 'Do I need to stay with my child?',
+    a: 'Yes. These are interactive parent-accompanied sessions. Parents actively participate in activities, learn practical ways to support development at home, and enjoy meaningful bonding experiences with their child.'
+  },
+  {
+    q: 'How long is each session?',
+    a: 'Sessions typically run for 60 to 90 minutes, carefully structured to match young children’s attention spans while allowing enough time for exploration, interaction, and guided activities.'
+  },
+  {
+    q: 'What kind of activities will we do?',
+    a: 'Our sessions feature a blend of sensory play, music and movement, storytelling, art exploration, life-skill activities, social interaction, gross motor play, and creative experiences that support holistic development.'
+  },
+  {
+    q: 'Will this help with my child’s socialisation?',
+    a: 'Absolutely. Bambino provides a safe and supportive environment where children can interact with peers, practice sharing, build communication skills, follow routines, and gain confidence in social settings.'
+  },
+  {
+    q: 'What if my child has a meltdown or cries?',
+    a: 'That is completely normal. Our facilitators are experienced in supporting young children through tantrums, separation anxiety, transitions, and emotional moments. Bambino is a judgment-free environment where children are encouraged to develop at their own pace.'
+  },
+  {
+    q: 'What should we bring?',
+    a: 'We recommend bringing a water bottle, a change of clothes, and a healthy mess-free snack for your child. All learning materials, activity resources, and play equipment are provided by Bambino.'
+  },
+  {
+    q: 'Are siblings allowed?',
+    a: 'Due to space and safety considerations, older siblings are generally not permitted during sessions. Exceptions may be made for young infants in carriers. Please contact us beforehand if you have a special circumstance.'
+  },
 ]
 
 const C = {
@@ -267,7 +323,7 @@ export default function BambinoWebsite() {
               style={{ display: 'flex', justifyContent: 'center', position: 'relative' }}>
               <div style={{ position: 'absolute', inset: -24, borderRadius: '50%',
                 background: `radial-gradient(circle, rgba(246,196,60,0.22) 0%, transparent 70%)`, filter: 'blur(4px)' }} />
-              <img src="/logo.jpeg" alt="Bambino"
+              <img src="/heropic.jpeg" alt="Bambino"
                 style={{ width: '100%', maxWidth: 480, borderRadius: 32, objectFit: 'cover', position: 'relative',
                   border: `1px solid rgba(196,154,0,0.2)`,
                   boxShadow: '0 32px 90px rgba(196,154,0,0.18), 0 0 0 1px rgba(246,196,60,0.1)' }} />
@@ -492,27 +548,30 @@ export default function BambinoWebsite() {
                   borderRadius: 28, padding: '48px 42px', height: '100%',
                 }}>
                   {/* Photo placeholder */}
-                  <div style={{
-                    width: '100%', aspectRatio: '4/3',
-                    borderRadius: 20,
-                    background: `linear-gradient(135deg, ${C.bgSoftYellow} 0%, ${C.bgGold} 100%)`,
-                    border: `1px solid ${C.border}`,
-                    marginBottom: 32,
-                    display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                    gap: 10,
-                  }}>
-                    <div style={{
-                      width: 72, height: 72, borderRadius: '50%',
-                      background: 'rgba(255,255,255,0.55)',
-                      border: `1.5px solid rgba(196,154,0,0.3)`,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 28, color: C.textMid,
-                    }}>🌿</div>
-                    <div style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, letterSpacing: '0.12em',
-                      textTransform: 'uppercase', color: 'rgba(92,61,0,0.4)', fontWeight: 400 }}>
-                      Photo coming soon
-                    </div>
-                  </div>
+                  <img
+  src={founder.name === 'Puja Gupta' ? '/pujaaunty.jpeg' : '/mom.jpeg'}
+  alt={founder.name}
+  style={{
+    width: '100%',
+    aspectRatio: '4/3',
+    objectFit: 'cover',
+    borderRadius: 24,
+    marginBottom: 32,
+    border: `2px solid rgba(196,154,0,0.25)`,
+    boxShadow: '0 12px 40px rgba(196,154,0,0.12)',
+    transition: 'all 0.45s ease',
+  }}
+  onMouseEnter={(e) => {
+    e.currentTarget.style.transform = 'scale(1.03)'
+    e.currentTarget.style.boxShadow =
+      '0 20px 60px rgba(196,154,0,0.20)'
+  }}
+  onMouseLeave={(e) => {
+    e.currentTarget.style.transform = 'scale(1)'
+    e.currentTarget.style.boxShadow =
+      '0 12px 40px rgba(196,154,0,0.12)'
+  }}
+/>
 
                   {/* Name & title */}
                   <div style={{ marginBottom: 20 }}>
